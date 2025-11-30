@@ -117,9 +117,40 @@ https://your-ngrok-url.ngrok.io/webhook
 
 ---
 
-## 🧪 測試
+## 🧪 測試（BDD + TDD）
 
-### 執行單元測試
+本專案採用 **BDD（行為驅動開發）** 和 **TDD（測試驅動開發）** 方法論。
+
+### 測試結構
+
+```
+tests/
+├── features/           # BDD Feature 檔案（Gherkin 語法）
+│   ├── US1_preset_tasks.feature
+│   ├── US2_workflows.feature
+│   └── ...
+├── step_defs/          # BDD Step 定義
+│   ├── test_preset_tasks.py
+│   └── ...
+├── unit/               # TDD 單元測試
+├── integration/        # 整合測試
+└── contract/           # API 契約測試
+```
+
+### 執行 BDD 測試（Gherkin Feature）
+
+```bash
+# 執行所有 BDD 測試
+pytest tests/features/ -v
+
+# 執行特定 User Story 的 BDD 測試
+pytest tests/step_defs/test_preset_tasks.py -v
+
+# 只執行帶有特定標籤的 Scenario
+pytest tests/features/ -v -m "P1"
+```
+
+### 執行單元測試（TDD）
 
 ```bash
 pytest tests/unit -v
@@ -131,10 +162,33 @@ pytest tests/unit -v
 pytest tests/integration -v
 ```
 
-### 執行全部測試
+### 執行契約測試（OpenAPI）
 
 ```bash
-pytest -v --cov=src
+# 使用 schemathesis 自動從 OpenAPI 生成測試
+schemathesis run http://localhost:8000/openapi.json
+```
+
+### 執行全部測試（含覆蓋率）
+
+```bash
+pytest -v --cov=src --cov-report=html
+```
+
+### 開發流程（每個功能）
+
+```bash
+# 1. 寫 BDD Feature（先定義行為）
+# 2. 執行測試確認失敗
+pytest tests/step_defs/test_xxx.py -v
+
+# 3. 寫 TDD 單元測試
+pytest tests/unit/test_xxx.py -v
+
+# 4. 實作程式碼直到測試通過
+# 5. 重構
+# 6. 確認 BDD 測試通過
+pytest tests/features/USx_xxx.feature -v
 ```
 
 ---

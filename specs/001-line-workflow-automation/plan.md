@@ -29,7 +29,7 @@
 - Jinja2（網頁模板）
 
 **Storage**: SQLite（單一用戶，輕量級）→ 可升級至 PostgreSQL
-**Testing**: pytest + pytest-asyncio
+**Testing**: pytest + pytest-bdd + pytest-asyncio（BDD/TDD 開發模式）
 **Target Platform**: Linux Server（Docker 部署）
 **Project Type**: Web Application（Backend API + Simple Frontend）
 
@@ -57,7 +57,7 @@
 | 原則 | 狀態 | 說明 |
 |------|------|------|
 | 文檔與程式碼註解 | ✅ 通過 | 每個模組將包含 README.md，所有程式碼使用詳細中文註解 |
-| 測試優先 | ✅ 計劃中 | 使用 pytest 進行單元和整合測試 |
+| 測試優先 (BDD/TDD) | ✅ 計劃中 | BDD: pytest-bdd + Gherkin Feature 檔案；TDD: pytest 單元測試 |
 | 可觀察性 | ✅ 計劃中 | 結構化日誌 + 執行歷史記錄 |
 | 簡單性 | ✅ 通過 | 單一用戶、SQLite、簡單網頁介面 |
 
@@ -158,10 +158,23 @@ line_backend/
 │           ├── css/
 │           └── js/
 │
-├── tests/                       # 測試
+├── tests/                       # 測試（BDD/TDD）
 │   ├── __init__.py
-│   ├── conftest.py              # pytest 配置
-│   ├── unit/                    # 單元測試
+│   ├── conftest.py              # pytest 配置 + 共用 fixtures
+│   ├── features/                # BDD Feature 檔案（Gherkin）
+│   │   ├── US1_preset_tasks.feature
+│   │   ├── US2_workflows.feature
+│   │   ├── US3_integrations.feature
+│   │   ├── US4_schedules.feature
+│   │   └── US5_history.feature
+│   ├── step_defs/               # BDD Step 定義
+│   │   ├── conftest.py
+│   │   ├── test_preset_tasks.py
+│   │   ├── test_workflows.py
+│   │   ├── test_integrations.py
+│   │   ├── test_schedules.py
+│   │   └── test_history.py
+│   ├── unit/                    # TDD 單元測試
 │   │   ├── test_parser.py
 │   │   ├── test_ai_service.py
 │   │   └── test_workflow.py
@@ -169,7 +182,7 @@ line_backend/
 │   │   ├── test_line_webhook.py
 │   │   ├── test_google_calendar.py
 │   │   └── test_scheduler.py
-│   └── contract/                # 契約測試
+│   └── contract/                # API 契約測試
 │       └── test_api_contracts.py
 │
 └── scripts/                     # 維護腳本

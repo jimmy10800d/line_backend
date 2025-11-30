@@ -3,9 +3,62 @@
 **Input**: Design documents from `/specs/001-line-workflow-automation/`  
 **Prerequisites**: plan.md ✅, spec.md ✅, research.md ✅, data-model.md ✅, contracts/openapi.yaml ✅
 
-**Tests**: 本專案採用測試優先原則，各 User Story 包含測試任務。
+**開發方法**: 本專案採用 **BDD（行為驅動開發）+ TDD（測試驅動開發）** 方法論
 
 **Organization**: 任務按 User Story 分組，確保每個故事可獨立實作和測試。
+
+---
+
+## 開發方法論：BDD + TDD
+
+### 測試金字塔
+
+```
+        ▲
+       /E2E\        ← 少量：LINE 實際對話測試
+      /─────\
+     / BDD  \       ← Feature 檔案 + Step 定義
+    /─────────\
+   / 整合測試 \     ← API 端點 + 資料庫
+  /─────────────\
+ /   TDD 單元    \  ← 服務邏輯、解析器
+/─────────────────\
+```
+
+### 工具鏈
+
+| 層級 | 工具 | 用途 |
+|------|------|------|
+| BDD | `pytest-bdd` | Gherkin 語法 Feature 檔案 |
+| TDD | `pytest` | 單元測試、整合測試 |
+| API 契約 | `schemathesis` | 從 OpenAPI 自動生成測試 |
+| Mock | `pytest-mock` + `respx` | Mock 外部服務 |
+
+### 每個任務的開發流程
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. 寫 BDD Feature（Gherkin 語法）                      │
+│     └─ tests/features/USx_xxx.feature                   │
+├─────────────────────────────────────────────────────────┤
+│  2. 寫 Step 定義骨架（先 pass）                         │
+│     └─ tests/step_defs/test_xxx.py                      │
+├─────────────────────────────────────────────────────────┤
+│  3. TDD 循環：                                          │
+│     ① 寫單元測試 (RED)                                  │
+│     ② 確認測試失敗                                      │
+│     ③ 實作程式碼 (GREEN)                                │
+│     ④ 確認測試通過                                      │
+│     ⑤ 重構 (REFACTOR)                                   │
+├─────────────────────────────────────────────────────────┤
+│  4. 完成 Step 定義實作                                  │
+├─────────────────────────────────────────────────────────┤
+│  5. 執行 BDD 測試確認 Scenario 通過                     │
+│     └─ pytest tests/features/ -v                        │
+├─────────────────────────────────────────────────────────┤
+│  6. 提交程式碼                                          │
+└─────────────────────────────────────────────────────────┘
+```
 
 ---
 
@@ -21,12 +74,12 @@
 
 **Purpose**: 專案基礎結構和配置
 
-- [ ] T001 建立專案目錄結構（依 plan.md 定義）
-- [ ] T002 初始化 Python 專案，建立 `pyproject.toml` 和 `requirements.txt`
+- [ ] T001 建立專案目錄結構（依 plan.md 定義，包含 tests/features/ 和 tests/step_defs/）
+- [ ] T002 初始化 Python 專案，建立 `pyproject.toml` 和 `requirements.txt`（包含 pytest-bdd, pytest-mock, respx, schemathesis）
 - [ ] T003 [P] 建立 `.env.example` 環境變數範例檔案
 - [ ] T004 [P] 建立 `Dockerfile` 和 `docker-compose.yml`
 - [ ] T005 [P] 配置 linting 工具（ruff）和 pre-commit hooks
-- [ ] T006 [P] 建立專案 `README.md`（中文說明文件）
+- [ ] T006 [P] 建立專案 `README.md`（中文說明文件，包含 BDD/TDD 開發指南）
 
 ---
 
@@ -57,12 +110,14 @@
 - [ ] T017 建立 LINE Webhook 驗證邏輯 `src/api/webhook.py`
 - [ ] T018 建立 LINE 訊息服務基礎類別 `src/services/line_service.py`
 
-### 測試框架
+### 測試框架（BDD/TDD 基礎設施）
 
-- [ ] T019 建立 pytest 配置 `tests/conftest.py`
-- [ ] T020 [P] 建立測試用的 fixtures 和 mock 工具
+- [ ] T019 建立 pytest 配置 `tests/conftest.py`（共用 fixtures、mock 工廠）
+- [ ] T020 [P] 建立 pytest-bdd 配置和共用 Step 定義 `tests/step_defs/conftest.py`
+- [ ] T020a [P] 建立 LINE Webhook Mock 工具 `tests/mocks/line_mock.py`
+- [ ] T020b [P] 建立外部服務 Mock 工具 `tests/mocks/external_services.py`
 
-**Checkpoint**: 基礎設施就緒 - 可開始 User Story 實作
+**Checkpoint**: 基礎設施就緒 - 可開始 User Story 的 BDD/TDD 開發
 
 ---
 
@@ -72,25 +127,41 @@
 
 **Independent Test**: 發送 `/hello` 或 `/weather 台北` 驗證系統正確回應
 
-### Tests for User Story 1
+### Step 1: BDD Feature 定義 (先寫行為規格)
 
-- [ ] T021 [P] [US1] 單元測試：指令解析器 `tests/unit/test_parser.py`
-- [ ] T022 [P] [US1] 整合測試：LINE Webhook 處理 `tests/integration/test_line_webhook.py`
-- [ ] T023 [P] [US1] 契約測試：/webhook 端點 `tests/contract/test_api_contracts.py`
+- [ ] T021 [US1] 撰寫 BDD Feature 檔案 `tests/features/US1_preset_tasks.feature`
+  - Scenario: 發送 /help 取得指令列表
+  - Scenario: 發送 /weather 查詢天氣
+  - Scenario: 處理無效指令
+  - Scenario: 長時間任務回覆處理中
 
-### Implementation for User Story 1
+### Step 2: Step 定義骨架 (確保測試失敗)
 
-- [ ] T024 [US1] 實作指令解析器 `src/commands/parser.py`
-- [ ] T025 [US1] 實作指令註冊表 `src/commands/registry.py`
-- [ ] T026 [P] [US1] 實作 /help 指令處理器 `src/commands/handlers/help.py`
-- [ ] T027 [P] [US1] 實作 /weather 指令處理器 `src/commands/handlers/weather.py`
-- [ ] T028 [P] [US1] 實作 /remind 指令處理器 `src/commands/handlers/remind.py`
-- [ ] T029 [US1] 整合 OpenAI AI 服務 `src/services/ai_service.py`
-- [ ] T030 [US1] 完成 LINE Webhook 處理流程 `src/api/webhook.py`
-- [ ] T031 [US1] 實作任務執行器基礎類別 `src/services/task_executor.py`
-- [ ] T032 [US1] 實作非同步任務處理（長時間任務回覆「處理中」）
+- [ ] T022 [US1] 建立 Step 定義骨架 `tests/step_defs/test_preset_tasks.py`（先 pass/skip）
 
-**Checkpoint**: User Story 1 完成 - 可透過 LINE 執行基本指令
+### Step 3: TDD 單元測試 → 實作 (RED → GREEN → REFACTOR)
+
+- [ ] T023 [P] [US1] TDD: 指令解析器測試 `tests/unit/test_parser.py` → 實作 `src/commands/parser.py`
+- [ ] T024 [P] [US1] TDD: 指令註冊表測試 → 實作 `src/commands/registry.py`
+- [ ] T025 [P] [US1] TDD: /help 處理器測試 → 實作 `src/commands/handlers/help.py`
+- [ ] T026 [P] [US1] TDD: /weather 處理器測試 → 實作 `src/commands/handlers/weather.py`
+- [ ] T027 [P] [US1] TDD: /remind 處理器測試 → 實作 `src/commands/handlers/remind.py`
+- [ ] T028 [US1] TDD: AI 服務測試 → 實作 `src/services/ai_service.py`
+- [ ] T029 [US1] TDD: 任務執行器測試 → 實作 `src/services/task_executor.py`
+
+### Step 4: 整合測試
+
+- [ ] T030 [US1] 整合測試：LINE Webhook 處理 `tests/integration/test_line_webhook.py`
+- [ ] T031 [US1] 契約測試：/webhook 端點 `tests/contract/test_api_contracts.py`
+
+### Step 5: 完成 Step 定義並通過 BDD 測試
+
+- [ ] T032 [US1] 完成 Step 定義實作 `tests/step_defs/test_preset_tasks.py`
+- [ ] T033 [US1] 完成 LINE Webhook 處理流程 `src/api/webhook.py`
+- [ ] T034 [US1] 實作非同步任務處理（長時間任務回覆「處理中」）
+- [ ] T035 [US1] 執行 BDD 測試確認所有 Scenario 通過
+
+**Checkpoint**: User Story 1 完成 - 可透過 LINE 執行基本指令（BDD 測試全綠）
 
 ---
 
@@ -100,24 +171,41 @@
 
 **Independent Test**: 發送 `/create workflow 早安提醒` 並驗證流程被正確儲存
 
-### Tests for User Story 2
+### Step 1: BDD Feature 定義
 
-- [ ] T033 [P] [US2] 單元測試：工作流程服務 `tests/unit/test_workflow.py`
-- [ ] T034 [P] [US2] 整合測試：工作流程 CRUD `tests/integration/test_workflow_crud.py`
-- [ ] T035 [P] [US2] 契約測試：/api/workflows 端點 `tests/contract/test_workflow_api.py`
+- [ ] T036 [US2] 撰寫 BDD Feature 檔案 `tests/features/US2_workflows.feature`
+  - Scenario: 建立新工作流程
+  - Scenario: 列出所有工作流程
+  - Scenario: 編輯工作流程
+  - Scenario: 刪除工作流程
+  - Scenario: 啟用/停用工作流程
 
-### Implementation for User Story 2
+### Step 2: Step 定義骨架
 
-- [ ] T036 [US2] 實作工作流程服務 `src/services/workflow_service.py`
-- [ ] T037 [US2] 實作工作流程 API 路由 `src/api/workflows.py`
-- [ ] T038 [P] [US2] 實作 /create workflow 指令 `src/commands/handlers/workflow.py`
-- [ ] T039 [P] [US2] 實作 /list workflows 指令 `src/commands/handlers/workflow.py`
-- [ ] T040 [P] [US2] 實作 /edit workflow 指令 `src/commands/handlers/workflow.py`
-- [ ] T041 [P] [US2] 實作 /delete workflow 指令 `src/commands/handlers/workflow.py`
-- [ ] T042 [US2] 實作工作流程版本控制邏輯
-- [ ] T043 [US2] 實作工作流程啟用/停用切換
+- [ ] T037 [US2] 建立 Step 定義骨架 `tests/step_defs/test_workflows.py`
 
-**Checkpoint**: User Story 2 完成 - 可建立和管理自訂工作流程
+### Step 3: TDD 單元測試 → 實作
+
+- [ ] T038 [P] [US2] TDD: 工作流程服務測試 → 實作 `src/services/workflow_service.py`
+- [ ] T039 [P] [US2] TDD: 工作流程 API 測試 → 實作 `src/api/workflows.py`
+- [ ] T040 [P] [US2] TDD: /create workflow 測試 → 實作 `src/commands/handlers/workflow.py`
+- [ ] T041 [P] [US2] TDD: /list workflows 測試
+- [ ] T042 [P] [US2] TDD: /edit workflow 測試
+- [ ] T043 [P] [US2] TDD: /delete workflow 測試
+
+### Step 4: 整合測試與契約測試
+
+- [ ] T044 [US2] 整合測試：工作流程 CRUD `tests/integration/test_workflow_crud.py`
+- [ ] T045 [US2] 契約測試：/api/workflows 端點 `tests/contract/test_workflow_api.py`
+
+### Step 5: 完成 Step 定義並通過 BDD 測試
+
+- [ ] T046 [US2] 完成 Step 定義實作
+- [ ] T047 [US2] 實作工作流程版本控制邏輯
+- [ ] T048 [US2] 實作工作流程啟用/停用切換
+- [ ] T049 [US2] 執行 BDD 測試確認所有 Scenario 通過
+
+**Checkpoint**: User Story 2 完成 - 可建立和管理自訂工作流程（BDD 測試全綠）
 
 ---
 
@@ -127,28 +215,45 @@
 
 **Independent Test**: 發送 `/connect google` 完成授權後，發送 `/calendar today` 獲取行程
 
-### Tests for User Story 3
+### Step 1: BDD Feature 定義
 
-- [ ] T044 [P] [US3] 單元測試：OAuth 流程 `tests/unit/test_oauth.py`
-- [ ] T045 [P] [US3] 整合測試：Google Calendar 整合 `tests/integration/test_google_calendar.py`
-- [ ] T046 [P] [US3] 契約測試：/api/integrations 端點 `tests/contract/test_integration_api.py`
+- [ ] T050 [US3] 撰寫 BDD Feature 檔案 `tests/features/US3_integrations.feature`
+  - Scenario: 連接 Google Calendar
+  - Scenario: 查詢今日行程
+  - Scenario: 連接 Notion
+  - Scenario: 連接 GitHub
+  - Scenario: 外部服務暫時無法連線
 
-### Implementation for User Story 3
+### Step 2: Step 定義骨架
 
-- [ ] T047 [US3] 實作整合服務基礎類別 `src/integrations/base.py`
-- [ ] T048 [US3] 實作整合服務 API 路由 `src/api/integrations.py`
-- [ ] T049 [P] [US3] 實作 Google Calendar 整合 `src/integrations/google_calendar.py`
-- [ ] T050 [P] [US3] 實作 Notion 整合 `src/integrations/notion.py`
-- [ ] T051 [P] [US3] 實作 GitHub 整合 `src/integrations/github.py`
-- [ ] T052 [P] [US3] 實作天氣 API 整合 `src/integrations/weather.py`
-- [ ] T053 [P] [US3] 實作 /connect 指令處理器 `src/commands/handlers/calendar.py`
-- [ ] T054 [P] [US3] 實作 /calendar 指令處理器 `src/commands/handlers/calendar.py`
-- [ ] T055 [P] [US3] 實作 /notion 指令處理器 `src/commands/handlers/notion.py`
-- [ ] T056 [P] [US3] 實作 /github 指令處理器 `src/commands/handlers/github.py`
-- [ ] T057 [US3] 實作 OAuth Token 加密儲存
-- [ ] T058 [US3] 實作 Token 自動刷新機制
+- [ ] T051 [US3] 建立 Step 定義骨架 `tests/step_defs/test_integrations.py`
 
-**Checkpoint**: User Story 3 完成 - 可串接外部服務執行任務
+### Step 3: TDD 單元測試 → 實作
+
+- [ ] T052 [US3] TDD: OAuth 流程測試 → 實作 `src/integrations/base.py`
+- [ ] T053 [US3] TDD: 整合 API 測試 → 實作 `src/api/integrations.py`
+- [ ] T054 [P] [US3] TDD: Google Calendar 測試 → 實作 `src/integrations/google_calendar.py`
+- [ ] T055 [P] [US3] TDD: Notion 測試 → 實作 `src/integrations/notion.py`
+- [ ] T056 [P] [US3] TDD: GitHub 測試 → 實作 `src/integrations/github.py`
+- [ ] T057 [P] [US3] TDD: 天氣 API 測試 → 實作 `src/integrations/weather.py`
+- [ ] T058 [P] [US3] TDD: /connect 指令測試 → 實作 `src/commands/handlers/calendar.py`
+- [ ] T059 [P] [US3] TDD: /calendar 指令測試
+- [ ] T060 [P] [US3] TDD: /notion 指令測試 → 實作 `src/commands/handlers/notion.py`
+- [ ] T061 [P] [US3] TDD: /github 指令測試 → 實作 `src/commands/handlers/github.py`
+
+### Step 4: 整合測試與契約測試
+
+- [ ] T062 [US3] 整合測試：Google Calendar 整合 `tests/integration/test_google_calendar.py`
+- [ ] T063 [US3] 契約測試：/api/integrations 端點 `tests/contract/test_integration_api.py`
+
+### Step 5: 完成 Step 定義並通過 BDD 測試
+
+- [ ] T064 [US3] 完成 Step 定義實作
+- [ ] T065 [US3] 實作 OAuth Token 加密儲存
+- [ ] T066 [US3] 實作 Token 自動刷新機制
+- [ ] T067 [US3] 執行 BDD 測試確認所有 Scenario 通過
+
+**Checkpoint**: User Story 3 完成 - 可串接外部服務執行任務（BDD 測試全綠）
 
 ---
 
@@ -158,23 +263,39 @@
 
 **Independent Test**: 設定 1 分鐘後執行的任務，驗證準時執行並收到 LINE 通知
 
-### Tests for User Story 4
+### Step 1: BDD Feature 定義
 
-- [ ] T059 [P] [US4] 單元測試：排程服務 `tests/unit/test_scheduler.py`
-- [ ] T060 [P] [US4] 整合測試：排程執行 `tests/integration/test_scheduler.py`
-- [ ] T061 [P] [US4] 契約測試：/api/schedules 端點 `tests/contract/test_schedule_api.py`
+- [ ] T068 [US4] 撰寫 BDD Feature 檔案 `tests/features/US4_schedules.feature`
+  - Scenario: 設定排程任務
+  - Scenario: 列出所有排程
+  - Scenario: 取消排程
+  - Scenario: 排程準時執行
 
-### Implementation for User Story 4
+### Step 2: Step 定義骨架
 
-- [ ] T062 [US4] 實作排程服務 `src/services/scheduler_service.py`（使用 APScheduler）
-- [ ] T063 [US4] 實作排程 API 路由 `src/api/schedules.py`
-- [ ] T064 [P] [US4] 實作 /schedule 指令處理器 `src/commands/handlers/schedule.py`
-- [ ] T065 [P] [US4] 實作 /list schedules 指令
-- [ ] T066 [P] [US4] 實作 /cancel schedule 指令
-- [ ] T067 [US4] 實作 Cron 表達式解析和下次執行時間計算
-- [ ] T068 [US4] 實作排程任務自動觸發和結果通知
+- [ ] T069 [US4] 建立 Step 定義骨架 `tests/step_defs/test_schedules.py`
 
-**Checkpoint**: User Story 4 完成 - 可設定和管理排程任務
+### Step 3: TDD 單元測試 → 實作
+
+- [ ] T070 [US4] TDD: 排程服務測試 → 實作 `src/services/scheduler_service.py`
+- [ ] T071 [US4] TDD: 排程 API 測試 → 實作 `src/api/schedules.py`
+- [ ] T072 [P] [US4] TDD: /schedule 指令測試 → 實作 `src/commands/handlers/schedule.py`
+- [ ] T073 [P] [US4] TDD: /list schedules 測試
+- [ ] T074 [P] [US4] TDD: /cancel schedule 測試
+- [ ] T075 [US4] TDD: Cron 解析器測試
+
+### Step 4: 整合測試與契約測試
+
+- [ ] T076 [US4] 整合測試：排程執行 `tests/integration/test_scheduler.py`
+- [ ] T077 [US4] 契約測試：/api/schedules 端點 `tests/contract/test_schedule_api.py`
+
+### Step 5: 完成 Step 定義並通過 BDD 測試
+
+- [ ] T078 [US4] 完成 Step 定義實作
+- [ ] T079 [US4] 實作排程任務自動觸發和結果通知
+- [ ] T080 [US4] 執行 BDD 測試確認所有 Scenario 通過
+
+**Checkpoint**: User Story 4 完成 - 可設定和管理排程任務（BDD 測試全綠）
 
 ---
 
@@ -184,22 +305,37 @@
 
 **Independent Test**: 執行數個任務後，發送 `/history` 驗證歷史紀錄完整
 
-### Tests for User Story 5
+### Step 1: BDD Feature 定義
 
-- [ ] T069 [P] [US5] 單元測試：執行日誌服務 `tests/unit/test_execution_log.py`
-- [ ] T070 [P] [US5] 整合測試：歷史查詢 `tests/integration/test_history.py`
-- [ ] T071 [P] [US5] 契約測試：/api/history 端點 `tests/contract/test_history_api.py`
+- [ ] T081 [US5] 撰寫 BDD Feature 檔案 `tests/features/US5_history.feature`
+  - Scenario: 查看執行歷史
+  - Scenario: 查看歷史詳情
+  - Scenario: 過期日誌自動清理
 
-### Implementation for User Story 5
+### Step 2: Step 定義骨架
 
-- [ ] T072 [US5] 實作執行日誌服務 `src/services/execution_log_service.py`
-- [ ] T073 [US5] 實作歷史查詢 API 路由 `src/api/history.py`
-- [ ] T074 [P] [US5] 實作 /history 指令處理器 `src/commands/handlers/history.py`
-- [ ] T075 [P] [US5] 實作 /history detail 指令
-- [ ] T076 [US5] 實作過期日誌清理腳本 `scripts/cleanup_logs.py`（7 天保留期）
-- [ ] T077 [US5] 整合執行日誌記錄到所有任務執行流程
+- [ ] T082 [US5] 建立 Step 定義骨架 `tests/step_defs/test_history.py`
 
-**Checkpoint**: User Story 5 完成 - 可查看完整的執行歷史
+### Step 3: TDD 單元測試 → 實作
+
+- [ ] T083 [US5] TDD: 執行日誌服務測試 → 實作 `src/services/execution_log_service.py`
+- [ ] T084 [US5] TDD: 歷史 API 測試 → 實作 `src/api/history.py`
+- [ ] T085 [P] [US5] TDD: /history 指令測試 → 實作 `src/commands/handlers/history.py`
+- [ ] T086 [P] [US5] TDD: /history detail 測試
+
+### Step 4: 整合測試與契約測試
+
+- [ ] T087 [US5] 整合測試：歷史查詢 `tests/integration/test_history.py`
+- [ ] T088 [US5] 契約測試：/api/history 端點 `tests/contract/test_history_api.py`
+
+### Step 5: 完成 Step 定義並通過 BDD 測試
+
+- [ ] T089 [US5] 完成 Step 定義實作
+- [ ] T090 [US5] 實作過期日誌清理腳本 `scripts/cleanup_logs.py`（7 天保留期）
+- [ ] T091 [US5] 整合執行日誌記錄到所有任務執行流程
+- [ ] T092 [US5] 執行 BDD 測試確認所有 Scenario 通過
+
+**Checkpoint**: User Story 5 完成 - 可查看完整的執行歷史（BDD 測試全綠）
 
 ---
 
@@ -207,13 +343,13 @@
 
 **Goal**: 提供簡單的網頁管理介面
 
-- [ ] T078 [P] 建立網頁路由 `src/web/routes.py`
-- [ ] T079 [P] 建立基礎模板 `src/web/templates/base.html`
-- [ ] T080 [P] 建立首頁 `src/web/templates/index.html`
-- [ ] T081 [P] 建立工作流程管理頁面 `src/web/templates/workflows.html`
-- [ ] T082 [P] 建立設定頁面 `src/web/templates/settings.html`
-- [ ] T083 [P] 建立靜態資源（CSS/JS）`src/web/static/`
-- [ ] T084 註冊網頁路由到 FastAPI 應用程式
+- [ ] T093 [P] 建立網頁路由 `src/web/routes.py`
+- [ ] T094 [P] 建立基礎模板 `src/web/templates/base.html`
+- [ ] T095 [P] 建立首頁 `src/web/templates/index.html`
+- [ ] T096 [P] 建立工作流程管理頁面 `src/web/templates/workflows.html`
+- [ ] T097 [P] 建立設定頁面 `src/web/templates/settings.html`
+- [ ] T098 [P] 建立靜態資源（CSS/JS）`src/web/static/`
+- [ ] T099 註冊網頁路由到 FastAPI 應用程式
 
 **Checkpoint**: 網頁介面完成 - 可透過瀏覽器管理流程
 
@@ -223,14 +359,15 @@
 
 **Purpose**: 跨 User Story 的改進和優化
 
-- [ ] T085 [P] 更新 API 文檔（Swagger/OpenAPI）
-- [ ] T086 [P] 補充程式碼中文註解（依 constitution 要求）
-- [ ] T087 [P] 建立各模組 README.md
-- [ ] T088 程式碼重構和清理
-- [ ] T089 效能優化（資料庫查詢、快取）
-- [ ] T090 安全性強化（輸入驗證、Token 加密）
-- [ ] T091 執行 quickstart.md 驗證流程
-- [ ] T092 最終整合測試和驗收
+- [ ] T100 [P] 更新 API 文檔（Swagger/OpenAPI）
+- [ ] T101 [P] 補充程式碼中文註解（依 constitution 要求）
+- [ ] T102 [P] 建立各模組 README.md
+- [ ] T103 程式碼重構和清理
+- [ ] T104 效能優化（資料庫查詢、快取）
+- [ ] T105 安全性強化（輸入驗證、Token 加密）
+- [ ] T106 執行 quickstart.md 驗證流程
+- [ ] T107 執行所有 BDD Feature 測試（最終驗收）
+- [ ] T108 測試覆蓋率報告生成（目標 > 80%）
 
 ---
 
@@ -314,27 +451,26 @@ T053, T054, T055, T056 (所有指令處理器)
 
 ## Summary
 
-| 階段 | 任務數 | 可平行任務 |
-|------|--------|-----------|
-| Phase 1: Setup | 6 | 4 |
-| Phase 2: Foundational | 14 | 10 |
-| Phase 3: US1 (MVP) | 12 | 7 |
-| Phase 4: US2 | 11 | 6 |
-| Phase 5: US3 | 15 | 12 |
-| Phase 6: US4 | 10 | 5 |
-| Phase 7: US5 | 9 | 5 |
-| Phase 8: Web | 7 | 6 |
-| Phase 9: Polish | 8 | 3 |
-| **Total** | **92** | **58** |
+| 階段 | 任務數 | BDD Feature | TDD 測試 |
+|------|--------|-------------|----------|
+| Phase 1: Setup | 6 | - | - |
+| Phase 2: Foundational | 16 | - | 基礎設施 |
+| Phase 3: US1 (MVP) | 15 | US1_preset_tasks.feature | ✅ |
+| Phase 4: US2 | 14 | US2_workflows.feature | ✅ |
+| Phase 5: US3 | 18 | US3_integrations.feature | ✅ |
+| Phase 6: US4 | 13 | US4_schedules.feature | ✅ |
+| Phase 7: US5 | 12 | US5_history.feature | ✅ |
+| Phase 8: Web | 7 | - | - |
+| Phase 9: Polish | 9 | 全部 Feature | 覆蓋率報告 |
+| **Total** | **110** | **5 Features** | **全流程** |
 
-**MVP Scope**: Phase 1 + Phase 2 + Phase 3 = **32 tasks**
+**MVP Scope**: Phase 1 + Phase 2 + Phase 3 = **37 tasks**
 
-**獨立測試標準**:
-- US1: `/hello`, `/weather 台北` 正確回應
-- US2: `/create workflow 早安提醒` 成功建立
-- US3: `/connect google` + `/calendar today` 成功
-- US4: 排程任務準時執行
-- US5: `/history` 顯示完整紀錄
+**BDD/TDD 驗收標準**:
+- 每個 User Story 的 BDD Feature 測試全部通過
+- 單元測試覆蓋率 > 80%
+- 整合測試覆蓋所有 API 端點
+- 契約測試驗證 OpenAPI 規格
 
 ---
 
@@ -342,8 +478,9 @@ T053, T054, T055, T056 (所有指令處理器)
 
 - [P] 標記 = 不同檔案、無依賴、可平行
 - [Story] 標籤將任務映射到特定 User Story
+- **BDD 流程**: Feature → Step 骨架 → TDD 實作 → Step 完成 → BDD 通過
+- **TDD 循環**: 紅（測試失敗）→ 綠（測試通過）→ 重構
 - 每個 User Story 應可獨立完成和測試
-- 驗證測試在實作前失敗
-- 每個任務或邏輯群組後提交
 - 在任何 Checkpoint 停止以獨立驗證 Story
+- 提交前確保相關測試通過
 - 避免：模糊任務、同檔案衝突、破壞獨立性的跨 Story 依賴

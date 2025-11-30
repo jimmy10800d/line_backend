@@ -24,30 +24,45 @@
 <!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
 <!-- 範例：每個函式庫透過 CLI 暴露功能；文字輸入/輸出協定：stdin/args → stdout，錯誤 → stderr；支援 JSON 和人類可讀格式 -->
 
-### [PRINCIPLE_3_NAME]
-### [原則3名稱]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-<!-- 範例：III. 測試優先（不可協商） -->
-[PRINCIPLE_3_DESCRIPTION]
-[原則3描述]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
-<!-- 範例：TDD 強制執行：撰寫測試 → 用戶批准 → 測試失敗 → 然後實作；嚴格執行紅-綠-重構循環 -->
+### PRINCIPLE_3: BDD/TDD 開發方法 (不可協商)
+### 原則3：BDD/TDD Development Method (NON-NEGOTIABLE)
 
-### [PRINCIPLE_4_NAME]
-### [原則4名稱]
-<!-- Example: IV. Integration Testing -->
-<!-- 範例：IV. 整合測試 -->
-[PRINCIPLE_4_DESCRIPTION]
-[原則4描述]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
-<!-- 範例：需要整合測試的重點領域：新函式庫契約測試、契約變更、服務間通訊、共享架構 -->
+**所有功能開發必須遵循 BDD + TDD 方法論**
 
-### [PRINCIPLE_5_NAME]
-### [原則5名稱]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-<!-- 範例：V. 可觀察性、VI. 版本控制與重大變更、VII. 簡單性 -->
-[PRINCIPLE_5_DESCRIPTION]
-[原則5描述]
+1. **BDD（行為驅動開發）**：
+   - 每個 User Story 必須先撰寫 Gherkin Feature 檔案
+   - 使用 pytest-bdd 實作 Step 定義
+   - Feature 檔案放置於 `tests/features/`
+   - Step 定義放置於 `tests/step_defs/`
+
+2. **TDD（測試驅動開發）**：
+   - 嚴格執行 RED → GREEN → REFACTOR 循環
+   - 先寫測試，確認失敗後才實作程式碼
+   - 單元測試放置於 `tests/unit/`
+
+3. **測試覆蓋率**：
+   - 目標覆蓋率 > 80%
+   - 每次提交前確認相關測試通過
+
+### PRINCIPLE_4: Integration Testing
+### 原則4：整合測試
+
+**需要整合測試的重點領域**：
+- API 端點與資料庫互動
+- LINE Webhook 處理流程
+- 外部服務整合（OAuth、API 呼叫）
+- 排程任務執行
+
+整合測試放置於 `tests/integration/`
+契約測試放置於 `tests/contract/`
+
+### PRINCIPLE_5: Observability
+### 原則5：可觀察性
+
+**系統必須具備可觀察性**：
+- 結構化日誌記錄所有操作
+- 執行歷史完整追蹤
+- 錯誤日誌便於除錯
 <!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 <!-- 範例：文字輸入/輸出確保可除錯性；需要結構化日誌；或：MAJOR.MINOR.BUILD 格式；或：從簡單開始，YAGNI 原則 -->
 

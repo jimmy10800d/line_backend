@@ -290,9 +290,102 @@ async def cleanup_old_logs():
 
 ---
 
-## 7. 總結與建議
+## 7. BDD/TDD 開發工具研究
 
-### 7.1 技術堆疊確認
+### 7.1 pytest-bdd
+
+**Decision / 決定**: 使用 pytest-bdd 進行 BDD 測試
+
+**Rationale / 理由**:
+- 與 pytest 生態系統完美整合
+- 支援 Gherkin 語法
+- 可複用 pytest fixtures
+- 活躍的社群支援
+
+**Feature 檔案範例**:
+```gherkin
+# tests/features/US1_preset_tasks.feature
+Feature: 透過 LINE 執行預設任務
+  作為一個 LINE 用戶
+  我想要發送指令給 Bot
+  以便快速執行自動化任務
+
+  @P1 @MVP
+  Scenario: 發送 /help 取得指令列表
+    Given 用戶已加入 LINE Bot 好友
+    When 用戶發送訊息 "/help"
+    Then 系統應回覆可用指令列表
+```
+
+**Step 定義範例**:
+```python
+# tests/step_defs/test_preset_tasks.py
+from pytest_bdd import scenarios, given, when, then, parsers
+
+scenarios('../features/US1_preset_tasks.feature')
+
+@given('用戶已加入 LINE Bot 好友')
+def user_is_friend(mock_line_user):
+    return mock_line_user
+
+@when(parsers.parse('用戶發送訊息 "{message}"'))
+def user_sends_message(test_client, message):
+    # 實作...
+    pass
+```
+
+### 7.2 Mock 工具
+
+**選擇**: pytest-mock + respx
+
+| 工具 | 用途 |
+|------|------|
+| pytest-mock | 一般 Python 函數 mock |
+| respx | httpx 請求 mock（LINE、OpenAI API） |
+
+**respx 範例**:
+```python
+import respx
+
+@respx.mock
+async def test_line_reply():
+    respx.post("https://api.line.me/v2/bot/message/reply").respond(200)
+    # 測試程式碼...
+```
+
+### 7.3 API 契約測試
+
+**選擇**: schemathesis
+
+**Rationale / 理由**:
+- 從 OpenAPI 規格自動生成測試
+- 發現邊緣案例
+- 驗證 API 符合契約
+
+```bash
+# 執行契約測試
+schemathesis run http://localhost:8000/openapi.json
+```
+
+### 7.4 測試金字塔
+
+```
+        ▲
+       /E2E\        ← 少量：LINE 實際對話
+      /─────\
+     / BDD  \       ← Feature + Step 定義
+    /─────────\
+   / 整合測試 \     ← API 端點 + 資料庫
+  /─────────────\
+ /   TDD 單元    \  ← 服務邏輯、解析器
+/─────────────────\
+```
+
+---
+
+## 8. 總結與建議
+
+### 8.1 技術堆疊確認
 
 | 層級 | 技術選擇 |
 |------|----------|
@@ -302,9 +395,12 @@ async def cleanup_old_logs():
 | Database | SQLite + SQLAlchemy |
 | Scheduler | APScheduler |
 | Template | Jinja2 |
-| Testing | pytest + pytest-asyncio |
+| **BDD Testing** | **pytest-bdd** |
+| **TDD Testing** | **pytest + pytest-asyncio** |
+| **Mock** | **pytest-mock + respx** |
+| **API Contract** | **schemathesis** |
 
-### 7.2 潛在風險與緩解
+### 8.2 潛在風險與緩解
 
 | 風險 | 緩解策略 |
 |------|----------|
@@ -313,9 +409,10 @@ async def cleanup_old_logs():
 | OAuth Token 過期 | 自動刷新機制 |
 | LINE Push 限額 | 監控用量 + 升級方案 |
 
-### 7.3 下一步
+### 8.3 下一步
 
 1. ✅ 完成研究文件
-2. ⏳ 設計資料模型 (data-model.md)
-3. ⏳ 定義 API 契約 (contracts/openapi.yaml)
-4. ⏳ 撰寫快速開始指南 (quickstart.md)
+2. ✅ 設計資料模型 (data-model.md)
+3. ✅ 定義 API 契約 (contracts/openapi.yaml)
+4. ✅ 撰寫快速開始指南 (quickstart.md)
+5. ✅ 任務分解 (tasks.md)
