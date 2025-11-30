@@ -109,6 +109,7 @@
 
 - [ ] T017 建立 LINE Webhook 驗證邏輯 `src/api/webhook.py`
 - [ ] T018 建立 LINE 訊息服務基礎類別 `src/services/line_service.py`
+- [ ] T018a [P] 建立指令佇列服務 `src/services/command_queue.py`（處理多指令同時發送的佇列機制）
 
 ### 測試框架（BDD/TDD 基礎設施）
 
@@ -147,6 +148,7 @@
 - [ ] T026 [P] [US1] TDD: /weather 處理器測試 → 實作 `src/commands/handlers/weather.py`
 - [ ] T027 [P] [US1] TDD: /remind 處理器測試 → 實作 `src/commands/handlers/remind.py`
 - [ ] T028 [US1] TDD: AI 服務測試 → 實作 `src/services/ai_service.py`
+- [ ] T028a [US1] TDD: AI 意圖識別測試（自然語言 → 指令轉換，如「幫我查今天的行程」→ `/calendar today`）
 - [ ] T029 [US1] TDD: 任務執行器測試 → 實作 `src/services/task_executor.py`
 
 ### Step 4: 整合測試
@@ -202,6 +204,8 @@
 
 - [ ] T046 [US2] 完成 Step 定義實作
 - [ ] T047 [US2] 實作工作流程版本控制邏輯
+- [ ] T047a [US2] 實作工作流程版本歷史查詢
+- [ ] T047b [US2] 實作工作流程斷點續傳（步驟執行狀態記錄與恢復）
 - [ ] T048 [US2] 實作工作流程啟用/停用切換
 - [ ] T049 [US2] 執行 BDD 測試確認所有 Scenario 通過
 
@@ -251,6 +255,7 @@
 - [ ] T064 [US3] 完成 Step 定義實作
 - [ ] T065 [US3] 實作 OAuth Token 加密儲存
 - [ ] T066 [US3] 實作 Token 自動刷新機制
+- [ ] T066a [US3] 實作外部服務重試機制（最多 3 次，指數退避）
 - [ ] T067 [US3] 執行 BDD 測試確認所有 Scenario 通過
 
 **Checkpoint**: User Story 3 完成 - 可串接外部服務執行任務（BDD 測試全綠）
@@ -454,17 +459,17 @@ T053, T054, T055, T056 (所有指令處理器)
 | 階段 | 任務數 | BDD Feature | TDD 測試 |
 |------|--------|-------------|----------|
 | Phase 1: Setup | 6 | - | - |
-| Phase 2: Foundational | 16 | - | 基礎設施 |
-| Phase 3: US1 (MVP) | 15 | US1_preset_tasks.feature | ✅ |
-| Phase 4: US2 | 14 | US2_workflows.feature | ✅ |
-| Phase 5: US3 | 18 | US3_integrations.feature | ✅ |
+| Phase 2: Foundational | 17 | - | 基礎設施 |
+| Phase 3: US1 (MVP) | 16 | US1_preset_tasks.feature | ✅ |
+| Phase 4: US2 | 16 | US2_workflows.feature | ✅ |
+| Phase 5: US3 | 19 | US3_integrations.feature | ✅ |
 | Phase 6: US4 | 13 | US4_schedules.feature | ✅ |
 | Phase 7: US5 | 12 | US5_history.feature | ✅ |
 | Phase 8: Web | 7 | - | - |
 | Phase 9: Polish | 9 | 全部 Feature | 覆蓋率報告 |
-| **Total** | **110** | **5 Features** | **全流程** |
+| **Total** | **115** | **5 Features** | **全流程** |
 
-**MVP Scope**: Phase 1 + Phase 2 + Phase 3 = **37 tasks**
+**MVP Scope**: Phase 1 + Phase 2 + Phase 3 = **39 tasks**
 
 **BDD/TDD 驗收標準**:
 - 每個 User Story 的 BDD Feature 測試全部通過

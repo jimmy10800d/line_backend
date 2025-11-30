@@ -6,23 +6,23 @@
 ## Core Principles
 ## 核心原則
 
-### [PRINCIPLE_1_NAME]
-### [原則1名稱]
-<!-- Example: I. Library-First -->
-<!-- 範例：I. 函式庫優先 -->
-[PRINCIPLE_1_DESCRIPTION]
-[原則1描述]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
-<!-- 範例：每個功能都從獨立的函式庫開始；函式庫必須自包含、可獨立測試、有文檔；需要明確目的 - 不允許僅為組織而存在的函式庫 -->
+### PRINCIPLE_1: 模組化設計
+### 原則1：Modular Design
 
-### [PRINCIPLE_2_NAME]
-### [原則2名稱]
-<!-- Example: II. CLI Interface -->
-<!-- 範例：II. 命令列介面 -->
-[PRINCIPLE_2_DESCRIPTION]
-[原則2描述]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
-<!-- 範例：每個函式庫透過 CLI 暴露功能；文字輸入/輸出協定：stdin/args → stdout，錯誤 → stderr；支援 JSON 和人類可讀格式 -->
+**所有功能必須採用模組化設計**
+
+1. **獨立性**：每個模組應該具有明確的單一職責
+2. **可測試性**：模組必須可獨立測試
+3. **文檔化**：每個模組須包含 README.md 說明其用途
+
+### PRINCIPLE_2: API 優先設計
+### 原則2：API-First Design
+
+**所有功能必須先定義 API 契約**
+
+1. **契約驅動**：先定義 OpenAPI 規格，再實作
+2. **一致性**：API 回應格式統一（JSON）
+3. **錯誤處理**：使用標準 HTTP 狀態碼和錯誤格式
 
 ### PRINCIPLE_3: BDD/TDD 開發方法 (不可協商)
 ### 原則3：BDD/TDD Development Method (NON-NEGOTIABLE)
