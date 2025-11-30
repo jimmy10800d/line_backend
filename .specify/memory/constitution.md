@@ -51,14 +51,24 @@
 <!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
 <!-- 範例：文字輸入/輸出確保可除錯性；需要結構化日誌；或：MAJOR.MINOR.BUILD 格式；或：從簡單開始，YAGNI 原則 -->
 
-### [PRINCIPLE_6_NAME]
-### [原則6名稱]
-<!-- Example: VI. Documentation & Maintainability -->
-<!-- 範例：VI. 文檔與可維護性 -->
-[PRINCIPLE_6_DESCRIPTION]
-[原則6描述]
-<!-- Example: Every module/component MUST include README.md with: purpose, setup instructions, usage examples, dependencies, API documentation; Code comments in Chinese for easier team collaboration and knowledge transfer; Documentation updates are part of feature completion -->
-<!-- 範例：每個模組/組件必須包含 README.md，內容包括：目的、設置說明、使用範例、依賴項、API 文檔；代碼註解使用中文以利團隊協作和知識轉移；文檔更新是功能完成的一部分 -->
+### PRINCIPLE_6: Documentation & Code Comments
+### 原則6：文檔與程式碼註解
+
+**所有程式碼必須包含詳細的中文註解**
+
+1. **程式碼註解要求**：
+   - 每個函數/方法必須有說明其用途、參數和返回值的中文註解
+   - 複雜邏輯必須有逐行或區塊中文註解解釋
+   - 類別和模組開頭必須有概述其職責的中文註解
+   - 重要的業務邏輯決策必須用註解說明原因
+
+2. **README.md 要求**：
+   - 每個模組/組件必須包含 README.md
+   - 內容包括：目的、設置說明、使用範例、依賴項、API 文檔
+
+3. **文檔更新**：
+   - 文檔更新是功能完成的必要條件
+   - 程式碼變更必須同步更新相關註解
 
 ## [SECTION_2_NAME]
 ## [章節2名稱]
