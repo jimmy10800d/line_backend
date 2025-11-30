@@ -210,10 +210,14 @@ line_backend/
 - [x] `contracts/openapi.yaml` - API 契約
 - [x] `quickstart.md` - 快速開始指南
 
-## Phase 2: Tasks (任務階段) ⏳ 待執行
-## 任務階段待執行
+## Phase 2: Tasks (任務階段) ✅ 完成
+## 任務階段已完成
 
-由 `/speckit.tasks` 命令產出 `tasks.md`
+已產出 `tasks.md`，包含：
+- [x] 92 個任務，依 User Story 組織
+- [x] MVP 範圍：32 個任務（Phase 1-3）
+- [x] 58 個可平行執行任務
+- [x] 獨立測試標準定義
 
 ---
 
@@ -223,5 +227,5 @@ line_backend/
 1. ✅ 完成實作計劃 (plan.md)
 2. ✅ 執行 Phase 0 研究，產出 research.md
 3. ✅ 執行 Phase 1 設計，產出資料模型和 API 契約
-4. ⏳ 執行 Phase 2 任務規劃，產出 tasks.md（執行 `/speckit.tasks`）
-5. ⏳ 開始實作
+4. ✅ 執行 Phase 2 任務規劃，產出 tasks.md
+5. ⏳ 開始實作（從 Phase 1: Setup 開始）
