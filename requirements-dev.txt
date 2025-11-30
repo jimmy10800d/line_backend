@@ -1,0 +1,27 @@
+# LINE 自動化流程引擎 - 開發依賴清單
+# LINE Workflow Automation Engine - Development Dependencies
+#
+# 安裝方式：pip install -r requirements-dev.txt
+# 注意：需先安裝 requirements.txt
+
+# ===== 測試框架（BDD/TDD）=====
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-bdd>=7.0.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# ===== HTTP Mock（外部服務測試）=====
+respx>=0.20.0
+
+# ===== API 契約測試 =====
+schemathesis>=3.21.0
+
+# ===== Linting & Formatting =====
+ruff>=0.1.0
+
+# ===== Pre-commit Hooks =====
+pre-commit>=3.5.0
+
+# ===== 類型檢查 =====
+mypy>=1.6.0

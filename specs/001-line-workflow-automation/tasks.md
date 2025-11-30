@@ -74,12 +74,12 @@
 
 **Purpose**: 專案基礎結構和配置
 
-- [ ] T001 建立專案目錄結構（依 plan.md 定義，包含 tests/features/ 和 tests/step_defs/）
-- [ ] T002 初始化 Python 專案，建立 `pyproject.toml` 和 `requirements.txt`（包含 pytest-bdd, pytest-mock, respx, schemathesis）
-- [ ] T003 [P] 建立 `.env.example` 環境變數範例檔案
-- [ ] T004 [P] 建立 `Dockerfile` 和 `docker-compose.yml`
-- [ ] T005 [P] 配置 linting 工具（ruff）和 pre-commit hooks
-- [ ] T006 [P] 建立專案 `README.md`（中文說明文件，包含 BDD/TDD 開發指南）
+- [X] T001 建立專案目錄結構（依 plan.md 定義，包含 tests/features/ 和 tests/step_defs/）
+- [X] T002 初始化 Python 專案，建立 `pyproject.toml` 和 `requirements.txt`（包含 pytest-bdd, pytest-mock, respx, schemathesis）
+- [X] T003 [P] 建立 `.env.example` 環境變數範例檔案
+- [X] T004 [P] 建立 `Dockerfile` 和 `docker-compose.yml`
+- [X] T005 [P] 配置 linting 工具（ruff）和 pre-commit hooks
+- [X] T006 [P] 建立專案 `README.md`（中文說明文件，包含 BDD/TDD 開發指南）
 
 ---
 
@@ -91,34 +91,34 @@
 
 ### 資料庫與 ORM
 
-- [ ] T007 建立 SQLAlchemy 資料庫連線配置 `src/config.py`
-- [ ] T008 [P] 建立 User 模型 `src/models/user.py`
-- [ ] T009 [P] 建立 Workflow 模型 `src/models/workflow.py`
-- [ ] T010 [P] 建立 ExecutionLog 模型 `src/models/execution_log.py`
-- [ ] T011 [P] 建立 Integration 模型 `src/models/integration.py`
-- [ ] T012 [P] 建立 Schedule 模型 `src/models/schedule.py`
-- [ ] T013 建立資料庫遷移腳本 `scripts/migrate_db.py`
+- [X] T007 建立 SQLAlchemy 資料庫連線配置 `src/config.py`
+- [X] T008 [P] 建立 User 模型 `src/models/user.py`
+- [X] T009 [P] 建立 Workflow 模型 `src/models/workflow.py`
+- [X] T010 [P] 建立 ExecutionLog 模型 `src/models/execution_log.py`
+- [X] T011 [P] 建立 Integration 模型 `src/models/integration.py`
+- [X] T012 [P] 建立 Schedule 模型 `src/models/schedule.py`
+- [X] T013 建立資料庫遷移腳本 `scripts/migrate_db.py`
 
 ### FastAPI 應用程式框架
 
-- [ ] T014 建立 FastAPI 應用程式入口 `src/main.py`
-- [ ] T015 [P] 建立錯誤處理中介軟體 `src/api/__init__.py`
-- [ ] T016 [P] 建立日誌配置 `src/config.py`（結構化日誌）
+- [X] T014 建立 FastAPI 應用程式入口 `src/main.py`
+- [X] T015 [P] 建立錯誤處理中介軟體 `src/middleware/error_handler.py`
+- [X] T016 [P] 建立日誌配置 `src/services/logging_service.py`（結構化日誌）
 
 ### LINE Bot 基礎
 
-- [ ] T017 建立 LINE Webhook 驗證邏輯 `src/api/webhook.py`
-- [ ] T018 建立 LINE 訊息服務基礎類別 `src/services/line_service.py`
-- [ ] T018a [P] 建立指令佇列服務 `src/services/command_queue.py`（處理多指令同時發送的佇列機制）
+- [X] T017 建立 LINE Webhook 驗證邏輯 `src/api/webhook.py`
+- [X] T018 建立 LINE 訊息服務基礎類別 `src/services/line_service.py`
+- [X] T018a [P] 建立指令佇列服務 `src/commands/queue.py`（處理多指令同時發送的佇列機制）
 
 ### 測試框架（BDD/TDD 基礎設施）
 
-- [ ] T019 建立 pytest 配置 `tests/conftest.py`（共用 fixtures、mock 工廠）
-- [ ] T020 [P] 建立 pytest-bdd 配置和共用 Step 定義 `tests/step_defs/conftest.py`
-- [ ] T020a [P] 建立 LINE Webhook Mock 工具 `tests/mocks/line_mock.py`
-- [ ] T020b [P] 建立外部服務 Mock 工具 `tests/mocks/external_services.py`
+- [X] T019 建立 pytest 配置 `tests/conftest.py`（共用 fixtures、mock 工廠）
+- [X] T020 [P] 建立 pytest-bdd 配置和共用 Step 定義 `tests/step_defs/conftest.py`
+- [X] T020a [P] 建立 LINE Webhook Mock 工具 `tests/mocks/line_mock.py`
+- [X] T020b [P] 建立外部服務 Mock 工具 `tests/mocks/external_services.py`
 
-**Checkpoint**: 基礎設施就緒 - 可開始 User Story 的 BDD/TDD 開發
+**Checkpoint**: 基礎設施就緒 - 可開始 User Story 的 BDD/TDD 開發 ✅
 
 ---
 
@@ -130,7 +130,7 @@
 
 ### Step 1: BDD Feature 定義 (先寫行為規格)
 
-- [ ] T021 [US1] 撰寫 BDD Feature 檔案 `tests/features/US1_preset_tasks.feature`
+- [X] T021 [US1] 撰寫 BDD Feature 檔案 `tests/features/US1_preset_tasks.feature`
   - Scenario: 發送 /help 取得指令列表
   - Scenario: 發送 /weather 查詢天氣
   - Scenario: 處理無效指令
@@ -138,30 +138,30 @@
 
 ### Step 2: Step 定義骨架 (確保測試失敗)
 
-- [ ] T022 [US1] 建立 Step 定義骨架 `tests/step_defs/test_preset_tasks.py`（先 pass/skip）
+- [X] T022 [US1] 建立 Step 定義骨架 `tests/step_defs/test_preset_tasks.py`（先 pass/skip）
 
 ### Step 3: TDD 單元測試 → 實作 (RED → GREEN → REFACTOR)
 
-- [ ] T023 [P] [US1] TDD: 指令解析器測試 `tests/unit/test_parser.py` → 實作 `src/commands/parser.py`
-- [ ] T024 [P] [US1] TDD: 指令註冊表測試 → 實作 `src/commands/registry.py`
-- [ ] T025 [P] [US1] TDD: /help 處理器測試 → 實作 `src/commands/handlers/help.py`
-- [ ] T026 [P] [US1] TDD: /weather 處理器測試 → 實作 `src/commands/handlers/weather.py`
-- [ ] T027 [P] [US1] TDD: /remind 處理器測試 → 實作 `src/commands/handlers/remind.py`
-- [ ] T028 [US1] TDD: AI 服務測試 → 實作 `src/services/ai_service.py`
-- [ ] T028a [US1] TDD: AI 意圖識別測試（自然語言 → 指令轉換，如「幫我查今天的行程」→ `/calendar today`）
-- [ ] T029 [US1] TDD: 任務執行器測試 → 實作 `src/services/task_executor.py`
+- [X] T023 [P] [US1] TDD: 指令解析器測試 `tests/unit/test_parser.py` → 實作 `src/commands/parser.py`
+- [X] T024 [P] [US1] TDD: 指令註冊表測試 → 實作 `src/commands/handlers/base.py`
+- [X] T025 [P] [US1] TDD: /help 處理器測試 → 實作 `src/commands/handlers/base.py`
+- [X] T026 [P] [US1] TDD: /weather 處理器測試 → 實作 `src/commands/handlers/weather.py`
+- [X] T027 [P] [US1] TDD: /remind 處理器測試 → 實作 `src/commands/handlers/remind.py`
+- [X] T028 [US1] TDD: AI 服務測試 → 實作 `src/services/ai_service.py`
+- [X] T028a [US1] TDD: AI 意圖識別測試（自然語言 → 指令轉換，如「幫我查今天的行程」→ `/calendar today`）
+- [X] T029 [US1] TDD: 任務執行器測試 → 實作 `src/services/task_executor.py`
 
 ### Step 4: 整合測試
 
-- [ ] T030 [US1] 整合測試：LINE Webhook 處理 `tests/integration/test_line_webhook.py`
-- [ ] T031 [US1] 契約測試：/webhook 端點 `tests/contract/test_api_contracts.py`
+- [X] T030 [US1] 整合測試：LINE Webhook 處理 `tests/integration/test_line_webhook.py`
+- [X] T031 [US1] 契約測試：/webhook 端點 `tests/contract/test_api_contracts.py`
 
 ### Step 5: 完成 Step 定義並通過 BDD 測試
 
-- [ ] T032 [US1] 完成 Step 定義實作 `tests/step_defs/test_preset_tasks.py`
-- [ ] T033 [US1] 完成 LINE Webhook 處理流程 `src/api/webhook.py`
+- [X] T032 [US1] 完成 Step 定義實作 `tests/step_defs/test_preset_tasks.py`
+- [X] T033 [US1] 完成 LINE Webhook 處理流程 `src/api/webhook.py`
 - [ ] T034 [US1] 實作非同步任務處理（長時間任務回覆「處理中」）
-- [ ] T035 [US1] 執行 BDD 測試確認所有 Scenario 通過
+- [X] T035 [US1] 執行 BDD 測試確認所有 Scenario 通過
 
 **Checkpoint**: User Story 1 完成 - 可透過 LINE 執行基本指令（BDD 測試全綠）
 

@@ -1,0 +1,63 @@
+# LINE 自動化流程引擎 - Docker Ignore
+# 排除不需要複製到 Docker 映像的檔案
+
+# ===== Git =====
+.git/
+.gitignore
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+
+# ===== 虛擬環境 =====
+.venv/
+venv/
+ENV/
+
+# ===== IDE =====
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ===== 測試 =====
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ===== 文檔 =====
+docs/
+*.md
+!README.md
+
+# ===== 規格文件 =====
+specs/
+.specify/
+
+# ===== 環境變數 =====
+.env
+.env.local
+.env.*.local
+
+# ===== Docker =====
+Dockerfile*
+docker-compose*.yml
+.docker/
+
+# ===== 其他 =====
+*.log
+*.log.*
+.DS_Store
+Thumbs.db
+*.tmp
