@@ -34,7 +34,11 @@ class CommandType(Enum):
     CREATE_WORKFLOW = "create_workflow"   # 建立工作流程
     RUN_WORKFLOW = "run_workflow"         # 執行工作流程
     LIST_WORKFLOWS = "list_workflows"     # 列出工作流程
+    EDIT_WORKFLOW = "edit_workflow"       # 編輯工作流程
     DELETE_WORKFLOW = "delete_workflow"   # 刪除工作流程
+    TOGGLE_WORKFLOW = "toggle_workflow"   # 切換工作流程狀態
+    ADD_STEP = "add_step"                 # 新增步驟
+    REMOVE_STEP = "remove_step"           # 移除步驟
     
     # 外部服務整合
     CONNECT_SERVICE = "connect_service"       # 連接外部服務
@@ -150,7 +154,34 @@ class CommandParser:
         CommandType.RUN_WORKFLOW: [
             r"^(?:執行|run|start)\s*(?:工作)?(?:流程|workflow)\s+(.+)$",
             r"^run\s+workflow\s+(.+)$",
+            r"^run\s+(.+)$",
             r"^流程\s+(.+)$",
+        ],
+        
+        CommandType.EDIT_WORKFLOW: [
+            r"^(?:編輯|edit|修改)\s*(?:工作)?(?:流程|workflow)\s+(.+)$",
+            r"^edit\s+workflow\s+(.+)$",
+        ],
+        
+        CommandType.DELETE_WORKFLOW: [
+            r"^(?:刪除|delete|移除)\s*(?:工作)?(?:流程|workflow)\s+(.+)$",
+            r"^delete\s+workflow\s+(.+)$",
+        ],
+        
+        CommandType.TOGGLE_WORKFLOW: [
+            r"^(?:切換|toggle)\s*(?:工作)?(?:流程|workflow)\s+(.+)$",
+            r"^toggle\s+workflow\s+(.+)$",
+            r"^(?:啟用|停用)\s*(?:工作)?(?:流程|workflow)\s+(.+)$",
+        ],
+        
+        CommandType.ADD_STEP: [
+            r"^(?:新增|add)\s*步驟\s+(.+?)\s+(.+)$",
+            r"^add\s+step\s+(.+?)\s+(.+)$",
+        ],
+        
+        CommandType.REMOVE_STEP: [
+            r"^(?:移除|remove)\s*步驟\s+(.+?)\s+(\d+)$",
+            r"^remove\s+step\s+(.+?)\s+(\d+)$",
         ],
         
         # 整合服務
@@ -276,8 +307,18 @@ class CommandParser:
         elif cmd_type == CommandType.WEATHER:
             params["city"] = groups[0].strip() if groups and groups[0] else "台北"  # 預設台北
             
-        elif cmd_type in (CommandType.CREATE_WORKFLOW, CommandType.RUN_WORKFLOW):
+        elif cmd_type in (CommandType.CREATE_WORKFLOW, CommandType.RUN_WORKFLOW, 
+                          CommandType.EDIT_WORKFLOW, CommandType.DELETE_WORKFLOW,
+                          CommandType.TOGGLE_WORKFLOW):
             params["name"] = groups[0].strip() if groups else ""
+            
+        elif cmd_type == CommandType.ADD_STEP:
+            params["workflow_name"] = groups[0].strip() if groups else ""
+            params["action"] = groups[1].strip() if len(groups) > 1 else ""
+            
+        elif cmd_type == CommandType.REMOVE_STEP:
+            params["workflow_name"] = groups[0].strip() if groups else ""
+            params["step_order"] = groups[1].strip() if len(groups) > 1 else ""
             
         elif cmd_type == CommandType.CONNECT_SERVICE:
             params["service"] = groups[0].lower() if groups else ""
