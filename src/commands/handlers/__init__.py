@@ -17,6 +17,7 @@
 from .base import BaseHandler, CommandContext, HandlerResult, get_handler, register_handler
 from .weather import WeatherHandler, get_weather_handler
 from .remind import RemindHandler, get_remind_handler
+from .todo import TodoHandler, NoteHandler, ExpenseHandler
 
 __all__ = [
     "BaseHandler",
@@ -28,4 +29,7 @@ __all__ = [
     "get_weather_handler",
     "RemindHandler",
     "get_remind_handler",
+    "TodoHandler",
+    "NoteHandler",
+    "ExpenseHandler",
 ]

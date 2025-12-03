@@ -160,10 +160,10 @@
 
 - [X] T032 [US1] 完成 Step 定義實作 `tests/step_defs/test_preset_tasks.py`
 - [X] T033 [US1] 完成 LINE Webhook 處理流程 `src/api/webhook.py`
-- [ ] T034 [US1] 實作非同步任務處理（長時間任務回覆「處理中」）
-- [X] T035 [US1] 執行 BDD 測試確認所有 Scenario 通過
+- [ ] T034 [US1] 實作非同步任務處理（長時間任務回覆「處理中」）⏳ 進階功能，MVP 階段暫跳
+- [X] T035 [US1] 執行 BDD 測試確認所有 Scenario 通過 ✅ 24/24 passed
 
-**Checkpoint**: User Story 1 完成 - 可透過 LINE 執行基本指令（BDD 測試全綠）
+**Checkpoint**: User Story 1 完成 - 可透過 LINE 執行基本指令（BDD 測試全綠）✅
 
 ---
 

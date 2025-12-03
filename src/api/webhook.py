@@ -267,7 +267,7 @@ async def handle_text_message(
     logger.info(f"處理文字訊息：{text[:50]}...")
     
     # 解析指令
-    from src.commands.parser import CommandParser, CommandType
+    from src.commands.parser import CommandParser, CommandType, ParsedCommand
     from src.commands.handlers.base import get_handler
     
     parser = CommandParser()
@@ -292,11 +292,15 @@ async def handle_text_message(
             try:
                 from src.services.ai_service import AIService
                 ai_service = AIService()
-                intent = await ai_service.parse_intent(text)
+                intent = await ai_service.recognize_intent(text)
                 
-                if intent and intent.get("command"):
-                    # AI 識別到指令
-                    new_parsed = parser.parse(intent["command"])
+                if intent and intent.command_type != CommandType.UNKNOWN:
+                    # AI 識別到指令，使用識別的參數建立新的 ParsedCommand
+                    new_parsed = ParsedCommand(
+                        command_type=intent.command_type,
+                        raw_text=text,
+                        parameters=intent.parameters,
+                    )
                     new_handler = get_handler(new_parsed.command_type)
                     if new_handler:
                         result = await new_handler.handle(user_id, new_parsed)

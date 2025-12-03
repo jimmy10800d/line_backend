@@ -156,8 +156,8 @@ class TestHandlerRegistry:
     
     def test_get_unregistered_handler(self):
         """測試取得未註冊的處理器"""
-        # ADD_TODO 在基礎模組中沒有註冊處理器
-        handler = get_handler(CommandType.ADD_TODO)
+        # CREATE_WORKFLOW 目前沒有註冊處理器
+        handler = get_handler(CommandType.CREATE_WORKFLOW)
         assert handler is None
     
     def test_register_custom_handler(self):

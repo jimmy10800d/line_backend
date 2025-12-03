@@ -21,17 +21,23 @@ from unittest.mock import AsyncMock, MagicMock, patch
 from fastapi.testclient import TestClient
 
 
+@pytest.fixture(autouse=True)
+def mock_line_settings():
+    """Mock LINE settings to enable signature validation"""
+    with patch('src.api.webhook.settings') as mock_settings:
+        mock_settings.line_channel_secret = "test_secret"
+        mock_settings.line_channel_access_token = "test_access_token"
+        yield mock_settings
+
+
 class TestWebhookEndpoint:
     """Webhook 端點測試"""
     
     @pytest.fixture
-    def mock_line_service(self):
-        """Mock LINE 服務"""
-        with patch('src.api.webhook.get_line_service') as mock:
-            service = MagicMock()
-            service.reply_message = AsyncMock(return_value=True)
-            mock.return_value = service
-            yield service
+    def mock_send_reply(self):
+        """Mock send_reply 函數"""
+        with patch('src.api.webhook.send_reply', new_callable=AsyncMock) as mock:
+            yield mock
     
     def create_signature(self, body: str, secret: str = "test_secret") -> str:
         """建立 LINE 簽名"""
@@ -115,7 +121,7 @@ class TestWebhookEndpoint:
         assert response.status_code == 400
     
     def test_webhook_valid_signature(
-        self, test_client: TestClient, mock_line_service
+        self, test_client: TestClient, mock_send_reply
     ):
         """測試有效簽名"""
         body = self.create_webhook_body(text="幫助")
@@ -155,7 +161,7 @@ class TestWebhookEndpoint:
     # =========================================================================
     
     def test_webhook_text_message(
-        self, test_client: TestClient, mock_line_service
+        self, test_client: TestClient, mock_send_reply
     ):
         """測試文字訊息處理"""
         body = self.create_webhook_body(text="幫助")
@@ -173,10 +179,10 @@ class TestWebhookEndpoint:
         
         assert response.status_code == 200
         # 驗證回覆被呼叫
-        # mock_line_service.reply_message.assert_called()
+        mock_send_reply.assert_called()
     
     def test_webhook_non_text_message(
-        self, test_client: TestClient, mock_line_service
+        self, test_client: TestClient, mock_send_reply
     ):
         """測試非文字訊息處理"""
         body = self.create_webhook_body(message_type="image")
@@ -208,7 +214,7 @@ class TestWebhookEndpoint:
     def test_webhook_commands(
         self,
         test_client: TestClient,
-        mock_line_service,
+        mock_send_reply,
         command: str,
         expected_text: str,
     ):

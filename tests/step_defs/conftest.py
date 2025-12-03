@@ -14,6 +14,7 @@ BDD Step 定義共用配置
 
 import pytest
 from pytest_bdd import given, when, then, parsers
+from unittest.mock import patch, AsyncMock
 
 from tests.conftest import (
     test_db,
@@ -23,6 +24,64 @@ from tests.conftest import (
     workflow_factory,
     mock_line_api,
 )
+
+
+# =============================================================================
+# Mock 設定
+# =============================================================================
+
+
+@pytest.fixture(autouse=True)
+def mock_verify_signature():
+    """Mock LINE 簽名驗證以便測試通過"""
+    with patch('src.api.webhook.verify_signature', return_value=True):
+        yield
+
+
+@pytest.fixture
+def mock_services():
+    """
+    Mock 外部服務集合（重新定義以追蹤調用）
+    
+    Returns:
+        dict: 包含各服務 mock 的字典
+    """
+    from tests.mocks.external_services import MockOpenAIAPI
+    
+    openai_mock = MockOpenAIAPI()
+    
+    return {
+        "openai": openai_mock,
+    }
+
+
+@pytest.fixture(autouse=True)
+def mock_ai_service_for_unknown():
+    """
+    Mock AIService 以便在無法識別的指令時使用
+    
+    當指令解析為 UNKNOWN 時，webhook 會嘗試用 AI 理解。
+    這個 fixture 確保 AI 服務回傳預設的 UNKNOWN 結果。
+    """
+    from src.commands.parser import CommandType
+    from src.services.ai_service import AIIntent
+    
+    async def mock_recognize_intent(text):
+        """模擬 AI 識別意圖"""
+        # 回傳 UNKNOWN 以觸發友善引導
+        return AIIntent(
+            command_type=CommandType.UNKNOWN,
+            confidence=0.0,
+            parameters={},
+            explanation="Mock: 無法識別",
+        )
+    
+    with patch('src.services.ai_service.AIService.recognize_intent', side_effect=mock_recognize_intent):
+        yield
+
+
+# 注意：line_reply_mock 已在 tests/conftest.py 中定義
+# 它會自動 mock send_reply 並捕獲回覆
 
 
 # =============================================================================

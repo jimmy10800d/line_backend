@@ -18,6 +18,7 @@ Pytest 共用配置和 Fixtures
 """
 
 import asyncio
+import os
 from typing import AsyncGenerator, Generator
 
 import pytest
@@ -25,6 +26,12 @@ import pytest_asyncio
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+# 設定測試環境變數（必須在 import src 模組之前）
+os.environ.setdefault("LINE_CHANNEL_SECRET", "test_secret")
+os.environ.setdefault("LINE_CHANNEL_ACCESS_TOKEN", "test_access_token")
+os.environ.setdefault("OPENAI_API_KEY", "test_openai_key")
+os.environ.setdefault("APP_ENV", "test")
 
 from src.config import get_db_session, settings
 from src.main import app
