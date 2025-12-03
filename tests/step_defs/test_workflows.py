@@ -6,6 +6,9 @@
 
 包含 US2_workflows.feature 中所有 Scenario 的 Step 實作。
 
+共用的 step 定義（如「用戶發送訊息」、「系統應該回覆包含」）
+在 conftest.py 中定義。
+
 使用方式：
     pytest tests/features/US2_workflows.feature -v
 """
@@ -33,7 +36,7 @@ def workflow_context():
 
 
 # =============================================================================
-# Given Steps（前置條件）
+# Given Steps（前置條件）- 工作流程專用
 # =============================================================================
 
 
@@ -50,7 +53,7 @@ def user_has_workflow(name: str, workflow_context, test_db_session, test_user):
 
 
 @given(parsers.parse("用戶已有以下工作流程:"))
-def user_has_workflows(workflow_context, test_db_session, test_user, datatable):
+def user_has_workflows(workflow_context, test_db_session, test_user):
     """建立多個工作流程"""
     # TODO: 解析 datatable 並建立工作流程
     pass
@@ -74,7 +77,7 @@ def workflow_has_steps(name: str, count: int, workflow_context):
 
 
 @given(parsers.parse('工作流程 "{name}" 包含步驟:'))
-def workflow_has_specific_steps(name: str, workflow_context, datatable):
+def workflow_has_specific_steps(name: str, workflow_context):
     """設定工作流程具體步驟"""
     # TODO: 解析 datatable
     pass
@@ -102,55 +105,8 @@ def workflow_has_specific_versions(name: str, v1: str, v2: str, workflow_context
 
 
 # =============================================================================
-# When Steps（動作）
+# Then Steps（驗證）- 工作流程專用
 # =============================================================================
-
-
-@when(parsers.parse('用戶發送訊息 "{message}"'))
-def user_sends_workflow_message(
-    message: str, test_client, test_user, line_webhook_mock, line_reply_mock
-):
-    """模擬用戶發送 LINE 訊息"""
-    line_reply_mock.clear()
-    
-    webhook_body = line_webhook_mock.create_text_message_event(
-        user_id=test_user.get("line_user_id", "U1234567890"),
-        text=message,
-    )
-    response = test_client.post(
-        "/webhook",
-        json=webhook_body,
-        headers=line_webhook_mock.create_signature_header(webhook_body),
-    )
-    test_user["last_response"] = response
-    test_user["last_message"] = message
-
-
-# =============================================================================
-# Then Steps（驗證）
-# =============================================================================
-
-
-@then(parsers.parse('系統應該回覆包含 "{text}" 的訊息'))
-def system_replies_with_text(text: str, line_reply_mock):
-    """驗證系統回覆包含指定文字"""
-    replies = line_reply_mock.get_replies()
-    assert any(text in reply.get("text", "") for reply in replies), \
-        f"Expected '{text}' in replies: {replies}"
-
-
-@then("系統應該回覆確認訊息")
-def system_replies_confirmation(line_reply_mock):
-    """驗證系統回覆確認訊息"""
-    replies = line_reply_mock.get_replies()
-    assert len(replies) > 0, "Expected at least one reply"
-    assert any(
-        "✅" in r.get("text", "") or
-        "已" in r.get("text", "") or
-        "成功" in r.get("text", "") or
-        "完成" in r.get("text", "")
-        for r in replies
-    )
 
 
 @then(parsers.parse('工作流程 "{name}" 應該被儲存'))
@@ -225,7 +181,5 @@ __all__ = [
     "user_has_workflows",
     "workflow_has_status",
     "workflow_has_steps",
-    "user_sends_workflow_message",
-    "system_replies_with_text",
     "workflow_should_be_saved",
 ]

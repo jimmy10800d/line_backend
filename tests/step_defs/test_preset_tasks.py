@@ -6,6 +6,9 @@
 
 包含 US1_preset_tasks.feature 中所有 Scenario 的 Step 實作。
 
+共用的 step 定義（如「用戶發送訊息」、「系統應該回覆包含」）
+在 conftest.py 中定義。
+
 使用方式：
     pytest tests/features/US1_preset_tasks.feature -v
 """
@@ -18,75 +21,8 @@ scenarios("../features/US1_preset_tasks.feature")
 
 
 # =============================================================================
-# Given Steps（前置條件）
+# When Steps（動作）- 僅限 US1 專用
 # =============================================================================
-
-
-@given(parsers.parse('用戶 "{user_id}" 已加入 LINE 好友'))
-def user_is_line_friend(user_id: str, test_user):
-    """設定測試用戶"""
-    test_user["line_user_id"] = user_id
-
-
-@given("系統已準備接收 Webhook")
-def system_ready_for_webhook(test_client):
-    """確認系統已就緒"""
-    response = test_client.get("/health")
-    assert response.status_code == 200
-
-
-@given("用戶之前執行過指令")
-def user_has_execution_history(test_db_session, test_user):
-    """建立測試用的執行歷史"""
-    # TODO: 建立測試資料
-    pass
-
-
-@given(parsers.parse("AI 服務回應時間超過 {seconds:d} 秒"))
-def ai_service_slow_response(seconds: int, mock_services):
-    """設定 AI 服務延遲"""
-    mock_services["openai"].set_response_delay(seconds)
-
-
-# =============================================================================
-# When Steps（動作）
-# =============================================================================
-
-
-@when(parsers.parse('用戶發送訊息 "{message}"'))
-def user_sends_message(message: str, test_client, test_user, line_webhook_mock, line_reply_mock):
-    """模擬用戶發送 LINE 訊息"""
-    # 清空之前的回覆
-    line_reply_mock.clear()
-    
-    webhook_body = line_webhook_mock.create_text_message_event(
-        user_id=test_user.get("line_user_id", "U1234567890"),
-        text=message,
-    )
-    response = test_client.post(
-        "/webhook",
-        json=webhook_body,
-        headers=line_webhook_mock.create_signature_header(webhook_body),
-    )
-    test_user["last_response"] = response
-    test_user["last_message"] = message
-
-
-@when("用戶發送空白訊息")
-def user_sends_empty_message(test_client, test_user, line_webhook_mock, line_reply_mock):
-    """模擬用戶發送空白訊息"""
-    line_reply_mock.clear()
-    
-    webhook_body = line_webhook_mock.create_text_message_event(
-        user_id=test_user.get("line_user_id", "U1234567890"),
-        text="",
-    )
-    response = test_client.post(
-        "/webhook",
-        json=webhook_body,
-        headers=line_webhook_mock.create_signature_header(webhook_body),
-    )
-    test_user["last_response"] = response
 
 
 @when(parsers.parse("用戶發送超過 {limit:d} 字的訊息"))
@@ -146,7 +82,7 @@ def user_sends_complex_message(test_client, test_user, line_webhook_mock, line_r
 
 
 # =============================================================================
-# Then Steps（驗證）
+# Then Steps（驗證）- 僅限 US1 專用
 # =============================================================================
 
 
