@@ -1,0 +1,82 @@
+# LINE 自動化流程引擎 - Docker Compose 配置
+# LINE Workflow Automation Engine - Docker Compose
+#
+# 啟動方式：docker-compose up -d
+# 停止方式：docker-compose down
+# 查看日誌：docker-compose logs -f
+
+version: "3.9"
+
+services:
+  # ===== 主應用程式 =====
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: line-workflow-app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - APP_ENV=${APP_ENV:-production}
+      - DEBUG=${DEBUG:-false}
+      - DATABASE_URL=sqlite+aiosqlite:///./data/app.db
+      - LINE_CHANNEL_ACCESS_TOKEN=${LINE_CHANNEL_ACCESS_TOKEN}
+      - LINE_CHANNEL_SECRET=${LINE_CHANNEL_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-mini}
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
+      - NOTION_INTEGRATION_TOKEN=${NOTION_INTEGRATION_TOKEN}
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=${GITHUB_CLIENT_SECRET}
+      - GITHUB_REDIRECT_URI=${GITHUB_REDIRECT_URI}
+      - WEATHER_API_KEY=${WEATHER_API_KEY}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - TIMEZONE=Asia/Taipei
+    volumes:
+      # 持久化資料庫
+      - app-data:/app/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - line-workflow-network
+
+  # ===== 開發環境專用 =====
+  app-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: line-workflow-dev
+    profiles:
+      - dev
+    ports:
+      - "${PORT:-8000}:8000"
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
+    env_file:
+      - .env
+    volumes:
+      # 開發時掛載原始碼（熱重載）
+      - .:/app
+      - app-data:/app/data
+    command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+    networks:
+      - line-workflow-network
+
+# ===== 網路設定 =====
+networks:
+  line-workflow-network:
+    driver: bridge
+
+# ===== 資料卷 =====
+volumes:
+  app-data:
+    driver: local

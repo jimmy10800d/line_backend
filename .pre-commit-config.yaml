@@ -1,0 +1,78 @@
+# LINE 自動化流程引擎 - Pre-commit Hooks 配置
+# LINE Workflow Automation Engine - Pre-commit Configuration
+#
+# 安裝方式：pre-commit install
+# 手動執行：pre-commit run --all-files
+
+# 預設使用的階段
+default_stages: [commit]
+
+# 定義 hooks
+repos:
+  # ===== Ruff（Linting + Formatting）=====
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      # Linting
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        types_or: [python, pyi]
+      # Formatting
+      - id: ruff-format
+        types_or: [python, pyi]
+
+  # ===== 通用檔案檢查 =====
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # 檢查 YAML 語法
+      - id: check-yaml
+        args: [--unsafe]
+      # 檢查 JSON 語法
+      - id: check-json
+      # 檢查 TOML 語法
+      - id: check-toml
+      # 移除行尾空白
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      # 確保檔案以換行結尾
+      - id: end-of-file-fixer
+      # 檢查是否有大檔案
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      # 檢查合併衝突標記
+      - id: check-merge-conflict
+      # 檢查是否有 debug 語句
+      - id: debug-statements
+      # 檢查私密資訊
+      - id: detect-private-key
+
+  # ===== MyPy 類型檢查 =====
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.7.0
+    hooks:
+      - id: mypy
+        additional_dependencies:
+          - types-python-dateutil
+        args: [--ignore-missing-imports]
+        exclude: tests/
+
+  # ===== 安全性檢查 =====
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.6
+    hooks:
+      - id: bandit
+        args: ["-c", "pyproject.toml", "-r", "src/"]
+        additional_dependencies: ["bandit[toml]"]
+        exclude: tests/
+
+# CI 環境設定
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit hooks
+  autofix_prs: true
+  autoupdate_branch: ''
+  autoupdate_commit_msg: '[pre-commit.ci] pre-commit autoupdate'
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false

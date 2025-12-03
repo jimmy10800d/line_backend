@@ -1,0 +1,188 @@
+# LINE 自動化流程引擎 - Python 專案配置
+# LINE Workflow Automation Engine - Python Project Configuration
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "line-workflow-automation"
+version = "0.1.0"
+description = "以 LINE 為操作介面的個人自動化助手，整合 AI 對話理解，支援外部服務整合"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.11"
+authors = [
+    {name = "Jimmy", email = "jimmy10800d@example.com"}
+]
+keywords = ["line", "automation", "workflow", "chatbot", "fastapi"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Framework :: FastAPI",
+    "Topic :: Communications :: Chat",
+]
+
+# 主要依賴
+dependencies = [
+    # Web 框架
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    
+    # LINE Bot SDK
+    "line-bot-sdk>=3.5.0",
+    
+    # OpenAI API
+    "openai>=1.3.0",
+    
+    # 資料庫 ORM
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    
+    # 排程
+    "apscheduler>=3.10.0",
+    
+    # 網頁模板
+    "jinja2>=3.1.0",
+    
+    # 環境變數
+    "python-dotenv>=1.0.0",
+    
+    # HTTP 客戶端（外部服務整合）
+    "httpx>=0.25.0",
+    
+    # 加密（Token 儲存）
+    "cryptography>=41.0.0",
+    
+    # 日期時間處理
+    "python-dateutil>=2.8.0",
+    
+    # Cron 解析
+    "croniter>=2.0.0",
+    
+    # 結構化日誌
+    "structlog>=23.2.0",
+]
+
+[project.optional-dependencies]
+# 開發依賴
+dev = [
+    # 測試框架（BDD/TDD）
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-bdd>=7.0.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    
+    # HTTP Mock（外部服務測試）
+    "respx>=0.20.0",
+    
+    # API 契約測試
+    "schemathesis>=3.21.0",
+    
+    # Linting
+    "ruff>=0.1.0",
+    
+    # Pre-commit hooks
+    "pre-commit>=3.5.0",
+    
+    # 類型檢查
+    "mypy>=1.6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/jimmy10800d/line_backend"
+Repository = "https://github.com/jimmy10800d/line_backend"
+Issues = "https://github.com/jimmy10800d/line_backend/issues"
+
+[project.scripts]
+# CLI 入口點（未來擴展）
+line-workflow = "src.main:main"
+
+# ===== 工具配置 =====
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
+
+# Pytest 配置
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+asyncio_mode = "auto"
+addopts = [
+    "-v",
+    "--tb=short",
+    "--strict-markers",
+]
+markers = [
+    "unit: 單元測試",
+    "integration: 整合測試",
+    "bdd: BDD 行為測試",
+    "contract: API 契約測試",
+    "slow: 執行時間較長的測試",
+]
+# BDD Feature 檔案路徑
+bdd_features_base_dir = "tests/features/"
+
+# Coverage 配置
+[tool.coverage.run]
+source = ["src"]
+branch = true
+omit = [
+    "*/tests/*",
+    "*/__pycache__/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise NotImplementedError",
+    "if TYPE_CHECKING:",
+]
+fail_under = 80
+show_missing = true
+
+# Ruff 配置（Linting + Formatting）
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long（由 formatter 處理）
+    "B008",   # function-call-in-default-argument（FastAPI Depends 使用）
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# MyPy 配置
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+strict = false

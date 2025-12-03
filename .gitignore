@@ -1,0 +1,84 @@
+# LINE 自動化流程引擎 - Git Ignore
+# LINE Workflow Automation Engine - Git Ignore
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+*.egg
+.eggs/
+dist/
+build/
+*.manifest
+*.spec
+
+# ===== 虛擬環境 =====
+.venv/
+venv/
+ENV/
+env/
+.env
+.env.local
+.env.*.local
+
+# ===== IDE =====
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== 測試與覆蓋率 =====
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+
+# ===== MyPy =====
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# ===== Ruff =====
+.ruff_cache/
+
+# ===== 資料庫 =====
+*.db
+*.sqlite
+*.sqlite3
+data/
+
+# ===== 日誌 =====
+*.log
+*.log.*
+logs/
+
+# ===== 作業系統 =====
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# ===== 暫存檔 =====
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# ===== Jupyter Notebook =====
+.ipynb_checkpoints/
+
+# ===== 其他 =====
+*.pid
+*.seed
+*.pid.lock
